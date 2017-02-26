@@ -28,5 +28,5 @@ class Tag(object):
     def iss(self, name: str):
         result = name.lower().startswith(self.tag_name.lower())
         if self.tag_name.lower() == "rem" and result:
-            result = result and name.endswith(self.value[0].lower())
+            result = result or name.endswith(str(self.value[-1]).lower())
         return result

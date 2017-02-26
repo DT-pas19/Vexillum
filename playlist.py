@@ -8,7 +8,7 @@ indent_space_count = 2
 
 class Playlist(object):
 
-    def __init__(self, filename: str, songs: List[Song], title: str= "", performer: str = "", genre: str = "", date: int = 0, comment: str = ""):
+    def __init__(self, filename: str = "", songs: List[Song] = list(), title: str= "", performer: str = "", genre: str = "", date: int = 0, comment: str = ""):
         self.__tags__ = []
         self.filename = filename
         self.title = title
@@ -132,7 +132,7 @@ class Playlist(object):
 
     @filename.setter
     def filename(self, name: str):
-        if not (isinstance(name, str) and name != ""):
+        if not (isinstance(name, str)):
             raise ValueError("Недопустимое значение имени файла")
         filename_tag_r = [(index, tag) for index, tag in enumerate(self.__tags__) if tag.iss("file")]
         tag_index = filename_tag_r[0][0] if filename_tag_r else None
@@ -164,7 +164,7 @@ class Playlist(object):
         timestamp = datetime.timedelta()
         spaces = "".join([' ' for i in range(indent_space_count)])
 
-        for number, song in enumerate(self.songs, 1):
+        for number, song in enumerate(self.songs, 1):  # TODO сохранять нумерацию из формы
             track_tag = Tag("track", ["{0:02d}".format(number), "AUDIO"])
             result += spaces + str(track_tag) + "\n"
             result += spaces * 2 + str(song.title) + "\n"

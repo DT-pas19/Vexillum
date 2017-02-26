@@ -3,12 +3,12 @@ from tag import Tag
 
 
 class Song(object):
-    def __init__(self, title: str, performer: str, duration: datetime.timedelta, filename: str = ""):
+    def __init__(self, title: str, artist: str, duration: datetime.timedelta = datetime.timedelta(), filename: str = ""):
         self.is_same_file = filename == ""
         self.__tags__ = []
         self._duration = datetime.timedelta()
         self.title = title
-        self.performer = performer
+        self.performer = artist
         self.duration = duration
         if not self.is_same_file:
             self.filename = filename
@@ -23,7 +23,7 @@ class Song(object):
 
     @title.setter
     def title(self, name: str):
-        if not(isinstance(name, str) and name != ""):
+        if not(isinstance(name, str)):
             raise ValueError("Недопустимое значение названия песни")
         title_tag_r = [(index, tag) for index, tag in enumerate(self.__tags__) if tag.tag_name == "title"]
         tag_index = title_tag_r[0][0] if title_tag_r else None
@@ -85,7 +85,9 @@ class Song(object):
     @staticmethod
     def timespamp_str(value: datetime.timedelta):
         stamp = str(value)
-        outAr = stamp.split(':')
-        outAr = ["%02d" % (int(float(x))) for x in outAr]
+        outAr = [int(p) for p in stamp.split(':')]
+        outAr[1] += outAr[0]*60
+        outAr = ["%02d" % x for x in outAr[1:] + [0]]
+        # outAr = ["%02d" % (int(float(x))) for x in outAr]
         out = ":".join(outAr)
         return out
