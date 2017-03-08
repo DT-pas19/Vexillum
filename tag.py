@@ -2,7 +2,6 @@ from typing import Tuple, List
 
 
 class Tag(object):
-    # TODO +indent
     def __init__(self, tag_name: str, value: Tuple[str] or List[str], indent_level: int = 0):
         is_acceptable = tag_name.lower() in ["rem", "file", "track", "index", "title", "performer"]
         if not is_acceptable:

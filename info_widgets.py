@@ -2,11 +2,12 @@ import tkinter as tk
 import os
 from tkinter.ttk import *
 from typing import List, Tuple, Callable
-from song import *
 from playlist import *
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from os.path import expanduser
 from pathlib import Path
+from parse_helper import *
+from iface import Form
 from parse_helper import *
 
 
@@ -117,21 +118,15 @@ class CueFrame(Frame):
         self.text = tk.Text(self, relief=tk.SUNKEN)
         bar.config(command=self.text.yview)
         self.text.config(yscrollcommand=bar.set)
-        self.text.bind("<Control-Key-a>", self.select_all)
-        self.text.bind("<Control-Key-A>", self.select_all)
+        self.text.bind("<Control-Key-a>", lambda: Form.select_all(self.text))
+        self.text.bind("<Control-Key-A>", lambda: Form.select_all(self.text))
 
         bar.pack(side=tk.RIGHT, fill=tk.Y)
         self.text.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.YES)
 
-    def select_all(self, args):
-        self.text.tag_add(tk.SEL, "1.0", tk.END)
-        self.text.mark_set(tk.INSERT, "1.0")
-        self.text.see(tk.INSERT)
-        return 'break'
-
 
 class FileButton(Frame):
-    def __init__(self, parent=None, is_save_btn=True, connected_variable: tk.StringVar=None, misc_action: Callable[[str]]=None, **options):
+    def __init__(self, parent=None, is_save_btn=True, connected_variable: tk.StringVar=None, misc_action: Callable[[str], None]=None, **options):
         Frame.__init__(self, parent, **options)
         self.__initial_dir__ = ""
         self.__chosen_file__ = ""
@@ -199,3 +194,51 @@ class FileButton(Frame):
                 connected_variable.set(ask)
                 self.initial_dir = str(Path(ask).parent)
         print('Было передано для сохранения \'{0}\''.format(ask))
+
+
+class TrackTextFieldFrame(Frame):
+    __patterns__ = (
+        "%{artist} - %{track} %{title} - %{duration}",
+        "%{artist} - %{track} %{title} - %{timestamp}",
+        "%{track} %{title} - %{duration}",
+        "%{track} %{title} - %{timestamp}",
+        "%{track}. %{title}",
+        "%{track} - %{title}")
+
+    def __init__(self, parent=None, **options):
+        Frame.__init__(self, parent, **options)
+        self.pack()
+        self.text = None
+        self.track_info_pattern = tk.StringVar(value="%{artist} - %{track} %{title} - %{duration}")
+        self.place_widgets()
+
+    def get_data(self, track_filename: str, general_artist: str):
+        text = self.text.get('1.0', tk.END + '-1c')
+        result = parse_tracks(track_filename, self.track_info_pattern.get(), text, general_artist)
+        return result
+
+    def place_widgets(self):
+        upper_part = Frame(self, relief=tk.SUNKEN, height=30)
+        lower_part = Frame(self, relief=tk.SUNKEN)
+
+        Label(upper_part, text='Pattern', width=20).pack(side=tk.LEFT)
+        pattern_box = Combobox(upper_part,
+                               textvariable=self.track_info_pattern,
+                               state='active', width=50)  # readonly
+        pattern_box['values'] = self.__patterns__
+        pattern_box.current(0)
+        pattern_box.pack(side=tk.RIGHT, expand=tk.YES)
+
+        upper_part.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.NO)
+
+        bar = Scrollbar(lower_part)
+        self.text = tk.Text(lower_part, relief=tk.SUNKEN)  # , variable=self.track_list)
+        lower_part.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.YES)
+        bar.config(command=self.text.yview)
+        self.text.config(yscrollcommand=bar.set)
+
+        self.text.bind("<Control-Key-a>", lambda: Form.select_all(self.text))
+        self.text.bind("<Control-Key-A>", lambda: Form.select_all(self.text))
+
+        bar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.text.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.YES)

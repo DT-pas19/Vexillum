@@ -8,7 +8,7 @@ indent_space_count = 2
 
 class Playlist(object):
 
-    def __init__(self, filename: str = "", songs: List[Song] = list(), title: str= "", performer: str = "", genre: str = "", date: int = 0, comment: str = ""):
+    def __init__(self, filename: str = "", songs: List[Song] = list(), title: str= "", performer: str = "", genre: str = "", date: int = 0, comment: str = "", discnumber: int = 1):
         self.__tags__ = []
         self.filename = filename
         self.title = title
@@ -17,6 +17,7 @@ class Playlist(object):
         self.date = date
         self.comment = comment
         self.songs = songs
+        self.discnumber = discnumber
 
     @property
     def title(self) -> Tag:
@@ -122,6 +123,25 @@ class Playlist(object):
         else:
             self.__tags__[tag_index] = Tag("rem", ["comment", value])
 
+    @property
+    def discnumber(self) -> Tag:
+        # comment_tag_r = [tag for tag in self.__tags__ if tag.tag_name == "rem" and tag.value[0].lower() == "comment"]
+        discno_tag_r = list(filter(lambda x: x.iss("rem discnumber")), self.__tags__)
+        comment_tag = discno_tag_r[0] if discno_tag_r else None
+        if comment_tag is None:
+            return ""
+        return comment_tag
+
+    @comment.setter
+    def discnumber(self, value: int):
+        if not(isinstance(value, int)):
+            raise ValueError("Недопустимое значение номера диска")
+        comment_tag_r = [tag for tag in self.__tags__ if tag.tag_name == "rem" and tag.value[0].lower() == "discnumber"]
+        tag_index = comment_tag_r[0][0] if comment_tag_r else None
+        if tag_index is None:
+            self.__tags__.append(Tag("rem", ["discnumber", value]))
+        else:
+            self.__tags__[tag_index] = Tag("rem", ["discnumber", value])
     @property
     def filename(self) -> Tag:
         filename_tag_r = [tag for tag in self.__tags__ if tag.iss("file")]

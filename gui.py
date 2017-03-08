@@ -1,3 +1,7 @@
+"""
+Test polygon used for learning tk basics
+"""
+
 from tkinter import *
 from tkinter.messagebox import *
 from tkinter.filedialog import askopenfilename, asksaveasfilename

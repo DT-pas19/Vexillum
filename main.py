@@ -1,3 +1,7 @@
+"""
+initial test site, console playground
+"""
+
 from typing import Tuple, List
 import datetime
 from playlist import Playlist
