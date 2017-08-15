@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/player">
+        <file alias="next">Icons/icon_next.ico</file>
+        <file alias="pause">Icons/icon_pause.ico</file>
+        <file alias="play">Icons/icon_play.ico</file>
+        <file alias="prev">Icons/icon_prev.ico</file>
+        <file alias="stop">Icons/icon_stop.ico</file>
+    </qresource>
+</RCC>
