@@ -165,17 +165,6 @@ class Playlist(object):
         else:
             self.__tags__[tag_index] = Tag("file", [name, "WAVE"])
 
-    """
-    def dump_data(self, List):
-        with open(file=self.filename, mode="wt", encoding="utf-8") as f:
-            text = f.writelines()
-        return text
-    #if tag_index is None:
-        self.__tags__.append(Tag("index", ["01", value]))
-    else:
-        self.__tags__[tag_index] = Tag("index", [value])
-    """
-
     def __str__(self):
         result = ""
         remarks = list(filter(lambda x: x.iss("rem"), self.__tags__))
@@ -203,3 +192,5 @@ class Playlist(object):
             # timestamp += song.duration
 
         return result
+
+    # TODO не добавляет дату в виде REM DATE xxxx

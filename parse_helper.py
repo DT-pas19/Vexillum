@@ -13,7 +13,6 @@ def parse_tracks(file_path: str, pattern: str, track_list: str, general_artist: 
     pattern_info = parse_pattern(pattern)
     songs = []
     tmp_info_list = []
-    has_timestamp = False
 
     for track in tracks:
         track = track.strip()
@@ -25,11 +24,10 @@ def parse_tracks(file_path: str, pattern: str, track_list: str, general_artist: 
         if track_info.get("artist", None) is None:
             track_info["artist"] = general_artist
         tmp_info_list.append(track_info)
-        has_timestamp = has_timestamp or track_info.get("timestamp", None) is not None
 
     timestamp_marker = timedelta(0)
-    if has_timestamp:
-        tmp_info_list.append({"timestamp": audio_helper.get_audio_length(file_path)})
+    # if has_timestamp:
+    #     tmp_info_list.append({"timestamp": audio_helper.get_audio_length(file_path)})
     for index in range(len(tmp_info_list)):
         track_info = tmp_info_list[index]
         track_number = track_info.get("track", 0)
@@ -37,12 +35,13 @@ def parse_tracks(file_path: str, pattern: str, track_list: str, general_artist: 
             track_info.pop("track")
 
         if "timestamp" in track_info.keys():
-            duration = tmp_info_list[index + 1].get("timestamp") - track_info["timestamp"]
+            if index < len(tmp_info_list) - 1:
+                duration = tmp_info_list[index + 1].get("timestamp") - track_info["timestamp"]
+            else:
+                duration = timedelta(0)
             if duration < timedelta(0):
                 duration = timedelta(0)
-            track_info.pop("timestamp")
             track_info["duration"] = duration
-            track_info["timestamp"] = parse_time(track_info["timestamp"])
         elif "duration" in track_info.keys():
             track_info["timestamp"] = timestamp_marker
             timestamp_marker += track_info["duration"]
@@ -58,21 +57,34 @@ def parse_track(pattern: List[Tuple[str, str]], track: str) -> Dict[str, str or 
     :param track: наименование
     :return:
     """
+    # TODO parse w/out dots - "3. Timing X 04:02" & "%{track}. %{title} %{timestamp}",
+    # TODO parsing with misc symbols '1. "CCCP"   2:21'
+
     i = 0
     block_index = 0
     song_info = {}
     while i < len(track):
         if pattern[block_index] in ["track", "artist", "title", "duration", "timestamp"]:
-            delim = pattern[block_index + 1]
-            if delim == '':
+            if len(pattern) - 1 == block_index:
                 ind = len(track)
             else:
+                delim = pattern[block_index + 1]
                 ind = track[i:].find(delim)
+
             if i != -1:
                 tag = track[i: i + ind].strip()
             else:
                 tag = track[i:]
             if pattern[block_index] == "duration" or pattern[block_index] == "timestamp":
+                time_piece_span = time_re.search(tag).span()
+                if time_piece_span[0] > 0:
+                    pre_tag = tag[:time_piece_span[0]]
+                    prev_tag_type = pattern[block_index - 2]
+                    prev_delim = pattern[block_index - 1]
+                    song_info[prev_tag_type] += prev_delim + pre_tag
+                    song_info[prev_tag_type] = song_info[prev_tag_type].strip()
+                    tag = tag[time_piece_span[0]:time_piece_span[1]]
+                    ind = len(tag)
                 tag = parse_time(tag)
             song_info[pattern[block_index]] = tag
             i += ind + len(delim)
@@ -95,10 +107,13 @@ def parse_pattern(pattern: str) -> List[Tuple[str, str]]:
         else:
             track_i[-1] += pattern[i]
             i += 1
-    for i in range(len(track_i)):
-        is_consisted_of_spaces = (True for s in set(track_i[i]) if str.isspace(s))
-        if False in is_consisted_of_spaces:
-            track_i[i] = track_i[i].strip()
+    track_i = list(filter(lambda x: x != '', track_i))
+    # for track_ipiece in track_i:
+    #     is_consisted_of_spaces = (True for s in set(track_ipiece) if str.isspace(s))
+    #     if any(is_consisted_of_spaces):
+    #         track_ipiece = track_ipiece.strip()
+    #     if track_ipiece == str():
+    #         track_i.remove(track_ipiece)
     return track_i
 
 

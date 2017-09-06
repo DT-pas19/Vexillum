@@ -20,11 +20,6 @@ class Program(QtWidgets.QMainWindow):
         self.dir_name = str()
         self.setup_widgets()
 
-        if not os.path.exists(tmp_dir):
-            os.mkdir(tmp_dir)
-        # self.ui.visual_gram.
-        # self.ui.statusbar.setFocus()
-
     def setup_widgets(self):
         """
         Настройка элементов формы
@@ -158,31 +153,9 @@ class Program(QtWidgets.QMainWindow):
             edit_index = self.ui.table_tracks.currentIndex().row()
             self.track_info_model.insert_timestamp(edit_index, position)
 
-
-tmp_dir = '/tmp/Vexillum'
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = Program()
     MainWindow.show()
     sys.exit(app.exec_())
-
-    # def open_common_info_dialog(self):
-    #     change_dialog = DialogWrapper(self)
-    #     change_dialog.set_info(self.common_info)
-    #     change_dialog.show()
-    #
-    #     def accept_changes():
-    #         result = change_dialog.get_info()
-    #         self.common_info = change_dialog.get_info()
-    #         self.work_info_model.set_common_data(self.common_info)
-    #         self.render_common_info()
-
-    # def question_rewrite(self, path, student) -> QMessageBox.StandardButton:
-    #     choice = QMessageBox.question(self, 'Файл с этим именем существует',
-    #                          "Перезаписать файл {0} с работой \'{1}\'?".format(path, student),
-    #                          QMessageBox.Yes | QMessageBox.No | QMessageBox.Abort)
-    #     return choice
-    #     change_dialog.ui.btn_apply.accepted.connect(accept_changes)
-    #

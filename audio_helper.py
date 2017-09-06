@@ -27,7 +27,6 @@ from pydub.utils import make_chunks
 
 from qt_gui.spectrogram_helper import series_to_polyline
 
-tmp_dir = '/tmp/Vexillum'
 time_bit_val = 125
 balanced_bit_length = ((125, 1200000), (1000, 3600000))
 # сбалансированная длина отрезка при построении аудио графа (длина в мс при длительности полного аудио файла в с.)
@@ -472,7 +471,8 @@ class QAudioChartView(QChartView):
         # samples, duration = get_samples(chosen_file)
         # self.process_audio_samples((samples, duration))
 
-        threads = multiprocessing.cpu_count()
+        cpu_count = multiprocessing.cpu_count()
+        threads = cpu_count - 1 if cpu_count > 1 else cpu_count
         args = []
         process_width = 100 / threads
 
